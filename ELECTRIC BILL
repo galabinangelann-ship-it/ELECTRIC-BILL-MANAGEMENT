@@ -1,0 +1,244 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_CUSTOMERS 200
+#define FILE_NAME "bills.txt"
+
+struct Address {
+    char street[50];
+    char city[30];
+    char province[30];
+};
+
+struct Customer {
+    int meterNumber;
+    char name[50];
+    struct Address address;
+    float kwhUsed;
+    float totalBill;
+};
+
+//Functions declarations
+void loadBills(struct Customer customers[], int *count);
+void saveBills(struct Customer customers[], int count);
+void addCustomer(struct Customer customers[], int *count);
+void displayAllBills(struct Customer customers[], int count);
+void searchBill(struct Customer customers[], int count);
+void updateUnits(struct Customer customers[], int count);
+void deleteCustomer(struct Customer customers[], int *count);
+float calculateTotal(float kwhUsed, float rate);
+void clearBuffer();
+
+int main() {
+
+
+    struct Customer customer[MAX_CUSTOMERS];
+    int count = 0;
+    int choice;
+
+    loadBills(bills, &count);
+
+    do {
+        printf("\n=====================================\n");
+        printf("     ELECTRIC BILL MANAGEMENT SYSTEM");
+        printf("=====================================\n");
+
+        printf("1. Add Customer & Record Usage\n");
+        printf("2. Display All Bills\n");
+        printf("3. Search Customer Bill\n");
+        printf("4. Update Units Consumed\n");
+        printf("5. Delete Customer Record\n");
+        printf("6. Exit\n");
+        printf("====================================\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        clearBuffer();
+
+        switch(choice) {
+
+            case 1:
+                addCustomer(customers, &count);
+                break;
+
+            case 2:
+                displayAllBills(customers, count);
+                break;
+
+            case 3:
+                searchBill(customers, count);
+                break;
+
+            case 4:
+                updateUnits(customers, count);
+                break;
+
+            case 5:
+                deleteCustomer(customers, &count);
+                break;
+
+            case 6:
+                saveBills(customers, count);
+                printf("Data saved. Exiting program...\n");
+                break;
+
+            default:
+                printf("Invalid choice! Try again.\n");
+        }
+
+    } while(choice != 6);
+
+    return 0;
+
+}
+
+void loadBills(struct Customer bills[], int *count) {
+    FILE *fp = fopen("bills.txt", "r");
+    if (!fp) {
+        printf("No existing data found. Starting fresh...\n");
+        return;
+    }
+
+    while (!feof(fp)) {
+        struct Customer c;
+        if (fscanf(fp, "%d|%49[^|]|%49[^|]|%29[^|]|%29[^|]|%f|%f|%f\n",
+                   &c.meterNumber, c.name,
+                   c.address.street, c.address.city, c.address.province,
+                   &c.kwhUsed, &c.rate, &c.totalBill) == 8)
+        {
+            bills[*count] = c;
+            (*count)++;
+        }
+    }
+
+    fclose(fp);
+}
+
+void saveBills(struct Customer bills[], int count) {
+    FILE *fp = fopen("bills.txt", "w");
+
+    for (int i = 0; i < count; i++) {
+        fprintf(fp, "%d|%s|%s|%s|%s|%.2f|%.2f|%.2f\n",
+                bills[i].meterNumber, bills[i].name,
+                bills[i].address.street, bills[i].address.city, bills[i].address.province,
+                bills[i].kwhUsed, bills[i].rate, bills[i].totalBill);
+    }
+
+    fclose(fp);
+}
+
+
+float calculateTotal(float kwhUsed, float rate) {
+    return kwhUsed * rate;
+}
+//Functions to add customer & record Usage
+void addCustomer(struct Bill bills[], int *count) {
+
+    struct Customer c;
+
+    printf("\n=== ADD CUSTOMER ===\n");
+    printf("Enter Meter Number: ");
+    scanf("%d", &c.meterNumber);
+
+    printf("Enter Name: ");
+    scanf(" %[^\n]", c.name);
+
+    printf("Enter Street: ");
+    scanf(" %[^\n]", c.address.street);
+
+    printf("Enter City: ");
+    scanf(" %[^\n]", c.address.city);
+
+    printf("Enter Province: ");
+    scanf(" %[^\n]", c.address.province);
+
+    printf("Enter kWh Used: ");
+    scanf("%f", &c.kwhUsed);
+
+    c.rate = RATE;
+    c.totalBill = calculateTotal(c.kwhUsed);
+
+    bills[*count] = c;
+    (*count)++;
+
+    printf("Customer added successfully!\n");
+}
+
+
+//Functions to display all customers
+void displayAllBills(struct Customer bills[], int count) {
+    printf("\n=== ALL BILLS ===\n");
+
+    for (int i = 0; i < count; i++) {
+        printf("\nMeter Number: %d\n", bills[i].meterNumber);
+        printf("Name: %s\n", bills[i].name);
+        printf("Address: %s, %s, %s\n",
+                bills[i].address.street,
+                bills[i].address.city,
+                bills[i].address.province);
+        printf("kWh Used: %.2f\n", bills[i].kwhUsed);
+        printf("Rate: %.2f\n", bills[i].rate);
+        printf("Total Bill: %.2f\n", bills[i].totalBill);
+    }
+}
+
+// Functions to search customer by meter number
+void searchBill(struct Customer bills[], int count) {
+    int meter;
+    printf("\nEnter Meter Number to search: ");
+    scanf("%d", &meter);
+
+    for (int i = 0; i < count; i++) {
+        if (bills[i].meterNumber == meter) {
+            printf("\nFOUND!\n");
+             printf("Name: %s\n", bills[i].name);
+            printf("Total Bill: %.2f\n", bills[i].totalBill);
+            return;
+        }
+    }
+
+    printf("Customer not found.\n");
+}
+
+//Functions to upgrade customer's unit
+void updateUnits(struct Customer bills[], int count) {
+    int meter;
+    printf("\nEnter Meter Number to update units: ");
+    scanf("%d", &meter);
+
+    for (int i = 0; i < count; i++) {
+
+        if (bills[i].meterNumber == meter) {
+          printf("Enter new kWh Used: ");
+            scanf("%f", &bills[i].kwhUsed);
+
+            bills[i].totalBill = calculatedTotal(bills [i]kwhUsed;
+
+            printf("Units updated successfully!\n");
+            return;
+        }
+    }
+
+        printf("Customer not found!.\n");
+}
+
+// Functions to delete records to File
+void deleteCustomer(struct Customer bills[], int *count) {
+    int meter;
+    printf("\nEnter Meter Number to delete: ");
+    scanf("%d", &meter);
+
+    for (int i = 0; i < *count; i++) {
+        if (bills[i].meterNumber == meter) {
+            for (int j = i; j < *count - 1; j++) {
+                bills[j] = bills[j + 1];
+            }
+            (*count)--;
+
+            printf("\nCustomer record deleted successfully.\n");
+            return;
+        }
+    }
+
+        printf("\nCustomer with that meter number not found.\n");
+}
